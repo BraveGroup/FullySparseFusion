@@ -1,5 +1,5 @@
 # Fully Sparse Fusion for 3D Object Detection 
-## [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2207.10035)
+## [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2304.12310)
 
 ### A multi-modal exploration on the paradigm of fully sparse 3D object detection
 
