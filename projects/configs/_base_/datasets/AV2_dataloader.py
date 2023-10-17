@@ -84,7 +84,7 @@ train_pipeline = [
         file_client_args=file_client_args),
     dict(
         type='LoadMaskFromFiles',
-        data_path='data/argo2/htc_mask',
+        data_path='data/frustum_mask/AV2',
         is_argo=True,
     ),
     dict(type='SaveNoAugPoints'),
@@ -112,7 +112,7 @@ test_pipeline = [
         file_client_args=file_client_args),
     dict(
         type='LoadMaskFromFiles',
-        data_path='data/argo2/htc_mask',
+        data_path='data/frustum_mask/AV2',
         is_argo=True,
     ),
     dict(type='SaveNoAugPoints'),

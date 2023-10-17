@@ -72,7 +72,24 @@ Then, please download the nuScenes and Argoverse 2 dataset and organize the data
 │   │   │   │   │──testing
 │   │   │   │   │──argo2_gt_database
 ```
-Please download the nuimage-pretrained HTC from mmdet3d and change the correspoining path in './tools/mask_tools/save_mask_argo2.py' and './tools/mask_tools/save_mask_nusc.py'
+
+For the argo2 pickles, you can either use the pickles we provided or generate them by yourself. If you want to generate them by yourself, please run the following commands:
+```shell
+python tools/AV2/argo2_pickle_mmdet_fusion.py
+```
+
+Please download the pretrained models and other files from [Google Drive](https://drive.google.com/drive/folders/1pylLxV6SEw2yf-ZZroKtCPAOKLg6nrUY?usp=drive_link).
+
+
+Then, please organize the ckpt dir as follow:
+```
+├── ckpt
+|   ├── fsd_argo_pretrain.pth
+|   ├── fsd_nusc_pretrain.pth
+|   ├── htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_20201008_211222-0b16ac4b.pth
+|   ├── htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim.py
+```
+
 Then use our scripts for pre-infering and saving 2D mask
 ```shell
 ./tools/mask_tools/save_mask_nusc.sh
@@ -100,9 +117,26 @@ For testing, please run:
 ./tools/dist_test.sh projects/configs/Argoverse2/FSF_AV2_config.py $CKPT_PATH$ 8
 ```
 
-## Checkpoints and logs
-The checkpoints, training logs and detailed evaluation results is [the github release](https://github.com/AnonymousUsersGithub/Anonymous/releases/tag/Checkpoints).
+## Results
+| DATASET  | mAP  | NDS  | CDS |
+|----------|------|------|-----|
+| nuScenes | 70.8 | 73.2 |  -  |
+| AV2      | 33.2 |  -   | 25.5|
 
 
-## TODO
-- [ ] when generating masks, add the mmdet3d-based config and ckpts.
+## Citation
+Please consider citing our work as follows if it is helpful.
+```
+@article{li2023fully,
+  title={Fully sparse fusion for 3d object detection},
+  author={Li, Yingyan and Fan, Lue and Liu, Yang and Huang, Zehao and Chen, Yuntao and Wang, Naiyan and Zhang, Zhaoxiang and Tan, Tieniu},
+  journal={arXiv preprint arXiv:2304.12310},
+  year={2023}
+}
+```
+
+## Acknowledgement
+This project is based on the following codebases. 
+
+* [MMDetection3D](https://github.com/open-mmlab/mmdetection3d)
+* [FSD](https://github.com/tusen-ai/SST) (Ours!)

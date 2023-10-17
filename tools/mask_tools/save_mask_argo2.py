@@ -158,11 +158,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #HTC
-    config ='/mnt/weka/scratch/yingyan.li/repo/frustum-query-fusion/projects/configs/nuimages/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_trainval.py'
-    checkpoint = '/mnt/weka/scratch/yingyan.li/repo/frustum-query-fusion/work_dirs/nuimages/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_trainval/epoch_20.pth'
+    config ='ckpt/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim.py'
+    checkpoint = 'ckpt/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_20201008_211222-0b16ac4b.pth'
 
     info_path = f'data/argo2/argo_pickle/argo2_infos_{args.split}.pkl'
-    out_path = 'data/frustum_mask/debug/AV2'
+    out_path = 'data/frustum_mask/AV2'
     os.makedirs(out_path, exist_ok=True)
 
     score_thre_init = 0.2

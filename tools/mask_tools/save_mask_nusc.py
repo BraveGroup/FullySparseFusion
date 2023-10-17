@@ -193,12 +193,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     #HTC
-    config ='/mnt/weka/scratch/yingyan.li/repo/frustum-query-fusion/projects/configs/nuimages/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_trainval.py'
-    checkpoint = '/mnt/weka/scratch/yingyan.li/repo/frustum-query-fusion/work_dirs/nuimages/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_trainval/epoch_20.pth'
-
-    # config ='ckpt/htc_r50_fpn_1x_nuim.py'
-    # config ='ckpt/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_trainval.py'
-    # checkpoint = 'ckpt/htc_nuim_20e.pth' 
+    config ='ckpt/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim.py'
+    checkpoint = 'ckpt/htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_20201008_211222-0b16ac4b.pth'
 
     info_path = f'data/nuscenes/nuscenes_infos_{args.split}.pkl'
     out_path = 'data/frustum_mask/debug/nuScenes'

@@ -125,3 +125,5 @@ mmdet3d/.mim
 mmcv
 mmdetection
 mmdetection3d
+ckpt
+data

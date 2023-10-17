@@ -426,4 +426,4 @@ optimizer = dict(
         }),
 )
 
-load_from='ckpt/fsd_pretrain_backbone.pth'
+load_from='ckpt/fsd_nusc_pretrain.pth'
