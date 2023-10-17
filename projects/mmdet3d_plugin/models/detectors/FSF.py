@@ -81,6 +81,7 @@ class FSF(SingleStageFSD):
                 use_frustum=True,
                 use_fsd=True,
                 voxel_downsampling_size=None,
+                is_argo=False,
                 ):
         super().__init__(
             backbone=backbone,
@@ -163,6 +164,7 @@ class FSF(SingleStageFSD):
             self.frustum_refined_head = nn.ModuleList([build_head(refined_obj_head[idx]) for idx in range(self.num_extra_stages)])
         self.tta_test_cfg = tta_test_cfg
         self.voxel_downsampling_size = voxel_downsampling_size
+        self.is_argo = is_argo
 
     def prj_points_2d(self, points, lidar2img, img_h, img_w):
         """points: N, 3
@@ -540,8 +542,10 @@ class FSF(SingleStageFSD):
                                 preds_2d.reshape(-1, num_mask_annos),
                                 img_w, 
                                 img_h, 
-                                encode_single_cls=False
-                            ).reshape(num_objs, num_classes)
+                                encode_single_cls=self.is_argo
+                            )
+            if not self.is_argo:
+                encoded_2d = encoded_2d.reshape(num_objs, num_classes, -1)
         else:
             encoded_2d = self.encode_preds_2d(preds_2d, img_w, img_h)
         encoded_2d_feat = encode_mlp(encoded_2d)

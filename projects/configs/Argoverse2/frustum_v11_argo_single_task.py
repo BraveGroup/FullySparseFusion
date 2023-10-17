@@ -1,8 +1,11 @@
 _base_ = [
-    '../_base_/datasets/AV2_dataloader.py',
-    '../_base_/schedules/cosine_2x.py',
-    '../_base_/default_runtime.py',
+    './datasets/argo2-frustum.py',
+    # '../_base_/nusc_frustum_with_aug_no_copy_paste_htc.py',
+    '../../_base_/schedules/cosine_2x.py',
+    '../../_base_/default_runtime.py',
 ]
+#milestone mAP 70 NDS 72.2
+#v10 + all_gelu all_l1_less_prev_cls_more_vel all_l1_points_512 dist_assign_no_barrier
 
 plugin=True
 plugin_dir='projects/mmdet3d_plugin/'
@@ -53,12 +56,21 @@ num_classes = len(class_names)
 seg_score_thresh = [0.4, 0.25, 0.25, 0.25, 0.25, 0.25]
 group_lens = [len(group1), len(group2), len(group3), len(group4), len(group5), len(group6)]
 
+# tasks=[
+#             dict(class_names=group1),
+#             dict(class_names=group2),
+#             dict(class_names=group3),
+#             dict(class_names=group4),
+#             dict(class_names=group5),
+#             dict(class_names=group6),
+#         ]
 tasks=[dict(class_names=class_names),]
 
 num_cams = 7
+num_max_queries = 250 #unused
 segmentor = dict(
     type='VoteSegmentor',
-    tanh_dims=[],
+    tanh_dims=3,
     voxel_layer=dict(
         voxel_size=seg_voxel_size,
         max_num_points=-1,
@@ -133,111 +145,30 @@ segmentor = dict(
 )
 
 model = dict(
-    type='FSF',
+    type='SingleFrustum',
+
+    segmentor=segmentor,
+
+    painting_segmentor=True,
+    segmentor_painting_mlp=dict(
+        in_channel=32,
+        mlp_channel=[128, 67],
+        norm_cfg=dict(type='LN', eps=1e-3),
+        act='gelu',
+    ),
+
     num_classes=num_classes,
     num_cams=num_cams,
+    num_max_queries=num_max_queries,
     class_names=class_names,
-    is_argo = True,
-    #LiDAR Query Generation
-    segmentor=segmentor,
-    segmentor_updated_mlp=dict(
-                    in_channel=32, 
-                    mlp_channel=[128, 67],
-                    norm_cfg=dict(type='LN', eps=1e-3),
-                    act='gelu',
-                ),
-    backbone=dict(
-        type='SIR',
-        num_blocks=3,
-        in_channels=[243 - 64,] + [132, ] * 2,
-        feat_channels=[[128, 128], ] * 3,
-        rel_mlp_hidden_dims=[[16, 32],] * 3,
-        norm_cfg=dict(type='LN', eps=1e-3),
-        mode='max',
-        xyz_normalizer=[20, 20, 4],
-        act='gelu',
-        unique_once=True,
-    ),
-    bbox_head=dict(
-        type='SparseClusterHeadV2',
-        num_classes=num_classes,
-        bbox_coder=dict(type='BasePointBBoxCoder', code_size=8),
-        loss_cls=dict(
-            type='FocalLoss',
-            use_sigmoid=True,
-            gamma=1.0,
-            alpha=0.25,
-            loss_weight=4.0),
-        loss_center=dict(type='SmoothL1Loss', loss_weight=0.25, beta=0.1),
-        loss_size=dict(type='SmoothL1Loss', loss_weight=0.25, beta=0.1),
-        loss_rot=dict(type='SmoothL1Loss', loss_weight=0.1, beta=0.1),
-        in_channel=128 * 3 * 2,
-        shared_mlp_dims=[1024, 1024],
-        train_cfg=None,
-        test_cfg=None,
-        norm_cfg=dict(type='LN'),
-        tasks=tasks, #single-tasks
-        class_names=class_names,
-        common_attrs=dict(
-            center=(3, 2, 128), dim=(3, 2, 128), rot=(2, 2, 128),  # (out_dim, num_layers, hidden_dim)
-        ),
-        num_cls_layer=2,
-        cls_hidden_dim=128,
-        separate_head=dict(
-            type='FSDSeparateHead',
-            norm_cfg=dict(type='LN'),
-            act='gelu',
-        ),
-
-    ),
+    
+    encode_label_only=False,
     encode_2d_mlp_cfg=dict(
-                    in_channel=32,
-                    mlp_channel=[128, 128],
-                    norm_cfg=dict(type='LN', eps=1e-3),
-                    act='gelu',
-                ),
-    
-    train_cfg=dict(
-        score_thresh=seg_score_thresh,
-        class_names=class_names, 
-        sync_reg_avg_factor=True,
-        pre_voxelization_size=(0.1, 0.1, 0.1),
-        group_sample=True,
-        group_names=group_names,
-        offset_weight='max',
-        group_lens=group_lens,
+        in_channel=32,
+        mlp_channel=[128, 128],
+        norm_cfg=dict(type='LN', eps=1e-3),
+        act='gelu',
     ),
-    test_cfg=dict(
-        score_thresh=seg_score_thresh,
-        class_names=class_names, 
-        pre_voxelization_size=(0.1, 0.1, 0.1),
-        group_sample=True,
-        group_names=group_names,
-        offset_weight='max',
-        group_lens=group_lens,
-        use_rotate_nms=True,
-        nms_pre=-1,
-        nms_thr=0.25, # from 0.25 to 0.7 for retest
-        score_thr=0.1, 
-        min_bbox_size=0,
-        max_num=500,
-    ),
-    cluster_assigner=dict(
-        cluster_voxel_size = [
-            (0.3, 0.3, 6.4),
-            (0.05, 0.05, 6.4),
-            (0.08, 0.08, 6.4),
-            (0.5, 0.5, 6.4),
-            (0.1, 0.1, 6.4),
-            (0.08, 0.08, 6.4),
-        ],
-        min_points=2,
-        point_cloud_range=point_cloud_range,
-        connected_dist=[0.6, 0.1, 0.15, 1.0, 0.2, 0.15],
-        class_names=class_names,
-    ),
-    
-    #Camera Query Generation
     frustum_sir=dict(
         type='SIR',
         num_blocks=3, #179
@@ -254,12 +185,13 @@ model = dict(
     frustum_obj_head=dict(
         type='FrustumClusterHead',
         num_classes=num_classes,
+        num_objs=num_max_queries,
         bbox_coder=dict(
             type='BasePointBBoxCoder',
             code_size=8,
         ),
         assigner=dict(
-            type='HybridAssigner',
+            type='FrustumAssigner',
             num_cams=num_cams,
             assigner_2d=dict(
                 type='MaxIoUAssigner',
@@ -272,6 +204,7 @@ model = dict(
             assigner_3d=dict(
                 type='PointInBoxAssigner',
             ),
+            ignore_bev_dist=[8, 8, 10, 4, 4, 4],
             class_names=class_names,
         ),
         loss_cls=dict(
@@ -311,7 +244,7 @@ model = dict(
         ),
         as_rpn=False,
     ),
-    #Query Refinement
+    ############ Multi stage ##############
     mlp_cfg=dict(
         embed_dims=1024,
         norm_cfg=dict(type='LN', eps=1e-3),
@@ -331,7 +264,7 @@ model = dict(
                 ),
     single_refine_sir_layer=dict(
                     type='FullySparseBboxHead',
-                    num_classes=num_classes,
+                    num_classes=10,
                     num_blocks=3,
                     in_channels=[67+32+4+13, 130+13+2, 130+13+2], 
                     feat_channels=[[128, 128], ] * 3,
@@ -357,6 +290,7 @@ model = dict(
         dict(
             type='FrustumClusterHead',
             num_classes=num_classes,
+            num_objs=num_max_queries,
             bbox_coder=dict(
                 type='BasePointBBoxCoder',
                 code_size=8,
@@ -423,6 +357,91 @@ model = dict(
         norm_cfg=dict(type='LN', eps=1e-3),
         act='gelu',
     ),
+    #######################################
+    backbone=dict(
+        type='SIR',
+        num_blocks=3,
+        in_channels=[243 - 64,] + [132, ] * 2,
+        feat_channels=[[128, 128], ] * 3,
+        rel_mlp_hidden_dims=[[16, 32],] * 3,
+        norm_cfg=dict(type='LN', eps=1e-3),
+        mode='max',
+        xyz_normalizer=[20, 20, 4],
+        act='gelu',
+        unique_once=True,
+    ),
+    bbox_head=dict(
+        type='SparseClusterHeadV2',
+        num_classes=num_classes,
+        bbox_coder=dict(type='BasePointBBoxCoder', code_size=8),
+        loss_cls=dict(
+            type='FocalLoss',
+            use_sigmoid=True,
+            gamma=1.0,
+            alpha=0.25,
+            loss_weight=4.0),
+        loss_center=dict(type='SmoothL1Loss', loss_weight=0.25, beta=0.1),
+        loss_size=dict(type='SmoothL1Loss', loss_weight=0.25, beta=0.1),
+        loss_rot=dict(type='SmoothL1Loss', loss_weight=0.1, beta=0.1),
+        in_channel=128 * 3 * 2,
+        shared_mlp_dims=[1024, 1024],
+        train_cfg=None,
+        test_cfg=None,
+        norm_cfg=dict(type='LN'),
+        tasks=tasks, #single-tasks
+        class_names=class_names,
+        common_attrs=dict(
+            center=(3, 2, 128), dim=(3, 2, 128), rot=(2, 2, 128),  # (out_dim, num_layers, hidden_dim)
+        ),
+        num_cls_layer=2,
+        cls_hidden_dim=128,
+        separate_head=dict(
+            type='FSDSeparateHead',
+            norm_cfg=dict(type='LN'),
+            act='gelu',
+        ),
+
+    ),
+    
+    train_cfg=dict(
+        score_thresh=seg_score_thresh,
+        class_names=class_names, 
+        sync_reg_avg_factor=True,
+        pre_voxelization_size=(0.1, 0.1, 0.1),
+        group_sample=True,
+        group_names=group_names,
+        offset_weight='max',
+        group_lens=group_lens,
+    ),
+    test_cfg=dict(
+        score_thresh=seg_score_thresh,
+        class_names=class_names, 
+        pre_voxelization_size=(0.1, 0.1, 0.1),
+        group_sample=True,
+        group_names=group_names,
+        offset_weight='max',
+        group_lens=group_lens,
+        use_rotate_nms=True,
+        nms_pre=-1,
+        nms_thr=0.25, # from 0.25 to 0.7 for retest
+        score_thr=0.1, 
+        min_bbox_size=0,
+        max_num=500,
+    ),
+    cluster_assigner=dict(
+        cluster_voxel_size = [
+            (0.3, 0.3, 6.4),
+            (0.05, 0.05, 6.4),
+            (0.08, 0.08, 6.4),
+            (0.5, 0.5, 6.4),
+            (0.1, 0.1, 6.4),
+            (0.08, 0.08, 6.4),
+        ],
+        min_points=2,
+        point_cloud_range=point_cloud_range,
+        connected_dist=[0.6, 0.1, 0.15, 1.0, 0.2, 0.15],
+        class_names=class_names,
+    ),
 )
 
 # runtime settings
@@ -443,9 +462,12 @@ log_config=dict(
     interval=20,
 )
 
-load_from='ckpt/fsd_argo_pretrain.pth'
+load_from='/mnt/weka/scratch/yingyan.li/repo/frustum-query-fusion/ckpt/argo_os_sp2_full12e_02.pth'
 lr=1e-5
-
+# custom_hooks = [
+#     dict(type='DisableAugmentationHook', num_last_epochs=3, skip_type_keys=('MyObjectSample'), dataset_wrap=True),
+#     # dict(type='EnableFSDDetectionHookIter', enable_after_iter=4000, threshold_buffer=0.3, buffer_iter=8000) 
+# ]
 optimizer = dict(
     type='AdamW',
     lr=lr,

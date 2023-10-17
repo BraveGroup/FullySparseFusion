@@ -166,49 +166,49 @@ class LoadMaskFromFiles(object):
 
         return results
 
-    # def load_argo_old(self, results):
-    #     uuid = results['img_info']['uuid']
-    #     sample_dir = os.path.join(self.data_path, uuid)
-    #     mask_data = []
-    #     file_list = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', 'anno.json']
-    #     for file in file_list:
-    #         if '.png' in file:
-    #             img_path = os.path.join(sample_dir, file)
-    #             img = cv2.imread(img_path, -1).astype(np.int32)
-    #             mask_data.append(torch.from_numpy(img))
-    #         elif '.json' in file:
-    #             anno_path = os.path.join(sample_dir, file)
-    #             anno = json.load(open(anno_path, 'r'))
-    #     #resize the image of ring_front_camera
-    #     self.resize_img(results, mask_data, anno, resize_idx=0, resize_shape=[1550, 2048]) #check whether mask data change
-    #     results['mask_anno'] = self.reorg_anno_single_cls(anno)
-    #     results['mask_data'] = torch.stack(mask_data, dim=0).unsqueeze(1)
-    #     return results
-    
     def load_argo(self, results):
         uuid = results['img_info']['uuid']
         sample_dir = os.path.join(self.data_path, uuid)
         mask_data = []
-        num_cams = 7
-
-        #load anno
-        anno_path = os.path.join(sample_dir, 'anno.json')
-        anno = json.load(open(anno_path, 'r'))
-
-        #load image
-        for cam_id in range(num_cams):
-            for name in self.class_names:
-                file_name = f"{cam_id}_{name}.png"
-                img_path = os.path.join(sample_dir, file_name)
-                img = cv2.imread(img_path, -1)
+        file_list = ['0.png', '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', 'anno.json']
+        for file in file_list:
+            if '.png' in file:
+                img_path = os.path.join(sample_dir, file)
+                img = cv2.imread(img_path, -1).astype(np.int32)
                 mask_data.append(torch.from_numpy(img))
-        
-        self.resize_img_argo(results, mask_data, anno, resize_idx=0, resize_shape=[1550, 2048]) #check whether mask data change
-        
-        results['mask_anno'] = self.reorg_anno_multi_cls(anno)
-        results['mask_data'] = torch.stack(mask_data, dim=0).reshape(num_cams, len(self.class_names), mask_data[0].shape[0], mask_data[0].shape[1])
-
+            elif '.json' in file:
+                anno_path = os.path.join(sample_dir, file)
+                anno = json.load(open(anno_path, 'r'))
+        #resize the image of ring_front_camera
+        self.resize_img(results, mask_data, anno, resize_idx=0, resize_shape=[1550, 2048]) #check whether mask data change
+        results['mask_anno'] = self.reorg_anno_single_cls(anno)
+        results['mask_data'] = torch.stack(mask_data, dim=0).unsqueeze(1)
         return results
+    
+    # def load_argo(self, results):
+    #     uuid = results['img_info']['uuid']
+    #     sample_dir = os.path.join(self.data_path, uuid)
+    #     mask_data = []
+    #     num_cams = 7
+
+    #     #load anno
+    #     anno_path = os.path.join(sample_dir, 'anno.json')
+    #     anno = json.load(open(anno_path, 'r'))
+
+    #     #load image
+    #     for cam_id in range(num_cams):
+    #         for name in self.class_names:
+    #             file_name = f"{cam_id}_{name}.png"
+    #             img_path = os.path.join(sample_dir, file_name)
+    #             img = cv2.imread(img_path, -1)
+    #             mask_data.append(torch.from_numpy(img))
+        
+    #     self.resize_img_argo(results, mask_data, anno, resize_idx=0, resize_shape=[1550, 2048]) #check whether mask data change
+        
+    #     results['mask_anno'] = self.reorg_anno_multi_cls(anno)
+    #     results['mask_data'] = torch.stack(mask_data, dim=0).reshape(num_cams, len(self.class_names), mask_data[0].shape[0], mask_data[0].shape[1])
+
+    #     return results
 
     def load_nusc(self, results):
         sample_idx = results['sample_idx']
