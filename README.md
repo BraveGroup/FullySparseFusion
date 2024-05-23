@@ -1,10 +1,10 @@
-# Fully Sparse Fusion for 3D Object Detection 
+# Fully Sparse Fusion for 3D Object Detection (TPAMI 2024)
 ## [![arXiv](https://img.shields.io/badge/arXiv-Paper-<COLOR>.svg)](https://arxiv.org/abs/2304.12310)
 
 ### A multi-modal exploration on the paradigm of fully sparse 3D object detection
 
 <div align="center">
-  <img src="figs/pipeline.png" width="800"/>
+  <img src="figs/pipeline.jpg" width="800"/>
 </div><br/>
 
 ## Installation
@@ -12,20 +12,23 @@ First initialize the conda environment
 ```shell
 conda create -n FSF python=3.8 -y
 conda activate FSF
-conda install pytorch==1.8.0 torchvision==0.9.0 torchaudio==0.8.0 cudatoolkit=11.1 -c pytorch -c conda-forge
+pip install torch==1.9.0+cu111 torchvision==0.10.0+cu111 torchaudio==0.9.0 -f https://download.pytorch.org/whl/torch_stable.html
 ```
 
 Then, install the mmdet3d
 ```shell
-#mmcv
 pip install mmcv-full==1.3.9
-#mmdet
 pip install mmdet==2.14.0
-#mmdet 3d
-git clone https://github.com/open-mmlab/mmdetection3d.git
+pip install mmsegmentation==0.30.0
+# modified mmdet 3d
+git clone https://gitee.com/liyingyanUCAS/mmdetection3d.git
 cd mmdetection3d
-git checkout -v 0.17.1
 pip install -v -e .
+# some other packages
+mkdir pkgs && cd pkgs
+git clone https://github.com/Abyssaledge/TorchEx.git
+pip install -v -e .
+pip install spconv-cu114
 ```
 
 
@@ -136,11 +139,12 @@ For testing, please run:
 ## Citation
 Please consider citing our work as follows if it is helpful.
 ```
-@article{li2023fully,
+@article{li2024fully,
   title={Fully sparse fusion for 3d object detection},
-  author={Li, Yingyan and Fan, Lue and Liu, Yang and Huang, Zehao and Chen, Yuntao and Wang, Naiyan and Zhang, Zhaoxiang and Tan, Tieniu},
-  journal={arXiv preprint arXiv:2304.12310},
-  year={2023}
+  author={Li, Yingyan and Fan, Lue and Liu, Yang and Huang, Zehao and Chen, Yuntao and Wang, Naiyan and Zhang, Zhaoxiang},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  year={2024},
+  publisher={IEEE}
 }
 ```
 
