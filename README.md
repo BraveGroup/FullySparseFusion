@@ -19,18 +19,26 @@ Then, install the mmdet3d
 ```shell
 pip install mmcv-full==1.3.9
 pip install mmdet==2.14.0
-pip install mmsegmentation==0.30.0
-# modified mmdet 3d
+pip install mmsegmentation==0.14.1
+# modified mmdet3d
 git clone https://gitee.com/liyingyanUCAS/mmdetection3d.git
 cd mmdetection3d
 pip install -v -e .
 # some other packages
 mkdir pkgs && cd pkgs
 git clone https://github.com/Abyssaledge/TorchEx.git
-pip install -v -e .
+cd TorchEx && pip install -v -e .
 pip install spconv-cu114
+pip install ipdb
+pip install torch-scatter==2.0.2
 ```
-
+```
+Also, please repleace the line 479 in the file `FSF/lib/python3.8/site-packages/mmcv/utils/config.py` with the following line:
+```
+      #text, _ = FormatCode(text, style_config=yapf_style, verify=True)
+      text, _ = FormatCode(text, style_config=yapf_style)
+```
+for compatibility.
 
 ## Data Preparation
 First, make the data dir

@@ -545,7 +545,7 @@ class FSF(SingleStageFSD):
                                 encode_single_cls=self.is_argo
                             )
             if not self.is_argo:
-                encoded_2d = encoded_2d.reshape(num_objs, num_classes, -1)
+                encoded_2d = encoded_2d.reshape(num_objs, num_classes)
         else:
             encoded_2d = self.encode_preds_2d(preds_2d, img_w, img_h)
         encoded_2d_feat = encode_mlp(encoded_2d)
