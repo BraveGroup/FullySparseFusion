@@ -109,7 +109,7 @@ Then, please organize the ckpt dir as follow:
 |   ├── fsd_argo_pretrain.pth
 |   ├── fsd_nusc_pretrain.pth
 |   ├── htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim_20201008_211222-0b16ac4b.pth
-|   ├── htc_x101_64x4d_fpn_dconv_c3-c5_coco-20e_16x1_20e_nuim.py
+
 ```
 
 Then use our scripts for pre-infering and saving 2D mask
