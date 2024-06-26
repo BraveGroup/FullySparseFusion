@@ -32,15 +32,9 @@ pip install spconv-cu114
 pip install ipdb
 pip install torch-scatter==2.0.2
 pip install nuscenes-devkit==1.1.3
-pip install motmetrics 
+pip install motmetrics
+pip install yapf==0.40.1
 ```
-
-Also, please repleace the line 479 in the file `anaconda3/envs/FSF/lib/python3.8/site-packages/mmcv/utils/config.py` with the following line:
-```shell
-      #text, _ = FormatCode(text, style_config=yapf_style, verify=True)
-      text, _ = FormatCode(text, style_config=yapf_style)
-```
-for compatibility.
 
 ## Data Preparation
 First, make the data dir
